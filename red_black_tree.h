@@ -22,8 +22,6 @@ struct TreeNode{
 class red_black_tree {
 private:
     TreeNode *sentinel_node= nullptr;
-    void rotate_left(TreeNode *root,TreeNode *target);
-    void rotate_right(TreeNode *root,TreeNode *target);
     TreeNode* rotate_left(TreeNode *child);
     TreeNode* rotate_right(TreeNode *child);
 public:

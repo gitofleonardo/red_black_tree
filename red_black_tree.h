@@ -11,7 +11,7 @@ enum COLOR{
 };
 
 struct TreeNode{
-    int key;
+    int key=-1;
     TreeNode *left= nullptr;
     TreeNode *right= nullptr;
     TreeNode *parent= nullptr;
@@ -28,10 +28,15 @@ private:
     void tree_fix(TreeNode *inserted);
     void destroy(TreeNode *root);
     void print(TreeNode *root);
+    void remove(TreeNode *node);
+    TreeNode* findMinNode(TreeNode *node);
+    void tree_remove_fix(TreeNode *node);
+    void copy(TreeNode *src,TreeNode *dst);
 public:
     red_black_tree();
     ~red_black_tree();
     void insert(int key);
+    void remove(int key);
     void print();
 };
 

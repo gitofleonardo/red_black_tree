@@ -40,6 +40,63 @@ void red_black_tree::print(TreeNode *root_node) {
         std::cout<<std::endl;
     }
 }
+void red_black_tree::remove(int key) {
+    auto cur_node=root;
+    while (cur_node!=sentinel_node){
+        if (cur_node->key==key){
+            break;
+        }else if (cur_node->key>key){
+            cur_node=cur_node->left;
+        }else{
+            cur_node=cur_node->right;
+        }
+    }
+    if (cur_node!=sentinel_node){
+        remove(cur_node);
+    }
+}
+void red_black_tree::remove(TreeNode *node) {
+    if (node== nullptr || node==sentinel_node) return;
+    TreeNode *to_delete;
+    TreeNode *child;
+    if (node->left==sentinel_node || node->right==sentinel_node){
+        to_delete=node;
+    }else{
+        to_delete= findMinNode(node->right);
+    }
+    if (to_delete->left!=sentinel_node){
+        child=to_delete->left;
+    }else{
+        child=to_delete->right;
+    }
+    child->parent=to_delete->parent;
+    if (to_delete->parent==sentinel_node){
+        root=child;
+    }else if (to_delete->parent->left==to_delete){
+        to_delete->parent->left=child;
+    }else{
+        to_delete->parent->right=child;
+    }
+    if (to_delete!=node){
+        copy(to_delete,node);
+    }
+    if (to_delete->color==BLACK){
+        tree_remove_fix(child);
+    }
+}
+void red_black_tree::tree_remove_fix(TreeNode *node) {
+
+}
+void red_black_tree::copy(TreeNode *src, TreeNode *dst) {
+    dst->key=src->key;
+    dst->color=src->color;
+}
+TreeNode* red_black_tree::findMinNode(TreeNode *node) {
+    while (node->left!=sentinel_node){
+        node=node->left;
+    }
+    return node;
+}
 void red_black_tree::insert(int key) {
     auto *new_node=new TreeNode{key,sentinel_node,sentinel_node, nullptr,RED};
     auto parent=sentinel_node;

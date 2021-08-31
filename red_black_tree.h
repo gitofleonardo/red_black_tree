@@ -12,7 +12,6 @@ enum COLOR{
 
 struct TreeNode{
     int key;
-    int value;
     TreeNode *left= nullptr;
     TreeNode *right= nullptr;
     TreeNode *parent= nullptr;
@@ -22,11 +21,18 @@ struct TreeNode{
 class red_black_tree {
 private:
     TreeNode *sentinel_node= nullptr;
-    TreeNode* rotate_left(TreeNode *child);
-    TreeNode* rotate_right(TreeNode *child);
+    TreeNode *root= nullptr;
+    void rotate_left(TreeNode *child);
+    void rotate_right(TreeNode *child);
+    bool is_left_child(TreeNode *child);
+    void tree_fix(TreeNode *inserted);
+    void destroy(TreeNode *root);
+    void print(TreeNode *root);
 public:
     red_black_tree();
     ~red_black_tree();
+    void insert(int key);
+    void print();
 };
 
 

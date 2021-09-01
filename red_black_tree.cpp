@@ -62,14 +62,16 @@ void red_black_tree::remove(TreeNode *node) {
     if (node->left==sentinel_node || node->right==sentinel_node){
         to_delete=node;
     }else{
-        to_delete= findMinNode(node->right);
+        to_delete= find_min_node(node->right);
     }
+    //origin color of node to be deleted
+    auto color=to_delete->color;
     if (to_delete->left!=sentinel_node){
         child=to_delete->left;
     }else{
         child=to_delete->right;
     }
-    child->parent=to_delete->parent;
+    child->parent = to_delete->parent;
     if (to_delete->parent==sentinel_node){
         root=child;
     }else if (to_delete->parent->left==to_delete){
@@ -80,22 +82,130 @@ void red_black_tree::remove(TreeNode *node) {
     if (to_delete!=node){
         copy(to_delete,node);
     }
+    if (color==BLACK){
+        tree_remove_fix(child);
+    }
+     delete to_delete;
+    /*
+    if (node==sentinel_node) return;
+    if (node->left==sentinel_node && node->right==sentinel_node){
+        if (node->parent==sentinel_node){
+            root=sentinel_node;
+        }else{
+            sentinel_node->parent=node->parent;
+            if (node->parent->left==node){
+                node->parent->left=sentinel_node;
+            }else{
+                node->parent->right=sentinel_node;
+            }
+        }
+        if (node->color==BLACK){
+            tree_remove_fix(sentinel_node);
+        }
+        delete node;
+        return;
+    }
+    if (node->left!= sentinel_node && node->right!= sentinel_node){
+        auto to_delete= find_min_node(node->right);
+        auto to_delete_right=to_delete->right;
+        to_delete_right->parent=to_delete->parent;
+        if (to_delete==to_delete->parent->left){
+            to_delete->parent->left=to_delete_right;
+        }else{
+            to_delete->parent->right=to_delete_right;
+        }
+        copy(to_delete,node);
+        if (to_delete->color==BLACK){
+            tree_remove_fix(to_delete_right);
+        }
+        delete to_delete;
+        return;
+    }
+    TreeNode *child;
+    if (node->left!=sentinel_node){
+        child=node->left;
+    }else{
+        child=node->right;
+    }
+    auto to_delete=node;
+    child->parent=to_delete->parent;
+    if (to_delete->parent==sentinel_node){
+        root=child;
+    }else if (to_delete->parent->left==to_delete){
+        to_delete->parent->left=child;
+    }else{
+        to_delete->parent->right=child;
+    }
     if (to_delete->color==BLACK){
         tree_remove_fix(child);
     }
+    delete to_delete;
+     */
 }
 void red_black_tree::tree_remove_fix(TreeNode *node) {
-
+    auto cur_node=node;
+    while (cur_node!=root && cur_node->color==BLACK){
+        if (cur_node==cur_node->parent->left){
+            auto sibling=cur_node->parent->right;
+            if (sibling->color==RED){
+                sibling->color=BLACK;
+                sibling->parent->color=RED;
+                rotate_left(cur_node->parent);
+                sibling=cur_node->parent->right;
+            }
+            if (sibling->left->color==BLACK && sibling->right->color==BLACK){
+                sibling->color=RED;
+                cur_node->parent->color=RED;
+                cur_node=cur_node->parent;
+            }else if (sibling->left->color==RED){
+                sibling->color=RED;
+                sibling->left->color=BLACK;
+                sibling=sibling->left;
+                rotate_right(sibling->parent);
+            }else{
+                sibling->right->color=BLACK;
+                sibling->color=RED;
+                sibling->parent->color=BLACK;
+                rotate_left(sibling->parent);
+                cur_node=root;
+            }
+        }else{
+            auto sibling=cur_node->parent->left;
+            if (sibling->color==RED){
+                sibling->color=BLACK;
+                cur_node->parent->color=RED;
+                rotate_right(cur_node->parent);
+                sibling=cur_node->parent->left;
+            }
+            if (sibling->left->color==BLACK && sibling->right->color==BLACK){
+                sibling->color=RED;
+                cur_node->parent->color=RED;
+                cur_node=cur_node->parent;
+            }else if (sibling->right->color==RED){
+                sibling->right->color=BLACK;
+                sibling->color=RED;
+                sibling=sibling->right;
+                rotate_left(sibling->parent);
+            }else{
+                sibling->left->color=BLACK;
+                sibling->color=RED;
+                sibling->parent->color=BLACK;
+                rotate_right(sibling->parent);
+                cur_node=root;
+            }
+        }
+    }
+    cur_node->color=BLACK;
 }
 void red_black_tree::copy(TreeNode *src, TreeNode *dst) {
     dst->key=src->key;
-    dst->color=src->color;
 }
-TreeNode* red_black_tree::findMinNode(TreeNode *node) {
-    while (node->left!=sentinel_node){
-        node=node->left;
+TreeNode* red_black_tree::find_min_node(TreeNode *node) {
+    auto cur=node;
+    while (cur->left!=sentinel_node){
+        cur=cur->left;
     }
-    return node;
+    return cur;
 }
 void red_black_tree::insert(int key) {
     auto *new_node=new TreeNode{key,sentinel_node,sentinel_node, nullptr,RED};
@@ -219,4 +329,35 @@ void red_black_tree::rotate_right(TreeNode *child) {
 bool red_black_tree::is_left_child(TreeNode *child) {
     if (child->parent->left==child) return true;
     return false;
+}
+void red_black_tree::check_black_height() {
+    std::cout<<"Printing RBTree Black Height:"<<std::endl;
+    check_black_height(root,0);
+}
+void red_black_tree::check_black_height(TreeNode *root_node, int height) {
+    if (root_node== nullptr || root_node==sentinel_node){
+        std::cout<<height<<"\t\t";
+        return;
+    }
+    int cur_height=0;
+    if (root_node->color==BLACK) cur_height=1;
+    if (root_node->left==sentinel_node && root_node->right==sentinel_node){
+        std::cout<<height+cur_height<<"\t\t";
+    }
+    if (root_node->left!=sentinel_node){
+        check_black_height(root_node->left,height+cur_height);
+    }
+    if (root_node->right!=sentinel_node){
+        check_black_height(root_node->right,height+cur_height);
+    }
+}
+bool red_black_tree::check_red_black() {
+    return check_red_black(root);
+}
+bool red_black_tree::check_red_black(TreeNode *root_node) {
+    if (root_node==sentinel_node) return true;
+    if (root_node->color==RED && (root_node->left->color==RED || root_node->right->color==RED)){
+        return false;
+    }
+    return check_red_black(root_node->left) && check_red_black(root_node->right);
 }
